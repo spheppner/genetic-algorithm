@@ -3,36 +3,9 @@ import random
 class World:
     cell_dict = {}
 
-class DNA:
-    """
-    DNA(n_chromosomes=4, n_genes=1):
-    dna = [[0.1],[0.6],[0.2],[0.3]]
-
-    DNA(n_chromosomes=5, n_genes=2):
-    dna = [[0.1,0.2],[0.4,0.9],[0.8,0.5],[0.2,0.1],[0.8,0.3]]
-    """
-    def __init__(self, dna=None, n_chromosomes=4, n_genes=1):
-        if dna is None:
-            self.dna = self._random_dna(n_chromosomes, n_genes)
-        else:
-            self.dna = dna
-        self.n_chromosomes = len(self.dna)
-        self.n_genes = len(self.dna[0])
-
-    def _random_dna(self, n_chromosomes, n_genes):
-        dna = [[] for _ in range(n_chromosomes)]
-        for _ in range(n_genes):
-            for n in range(len(dna)):
-                dna[n].append(random.random())
-        return dna
-
-    def __repr__(self):
-        return str(self.dna)
-
 class Cell:
     """
     Organism, that has a DNA.
-    For understanding how n_chromosomes and n_genes work, see DNA() class above.
     """
     number = 0
     def __init__(self, dna=None, n_chromosomes = 3, n_genes = 3):
@@ -42,14 +15,32 @@ class Cell:
         self.mutation_chance = 0.2
         self.n_mutations = 2
 
-        if type(dna) == DNA:
-            self.dna = dna.dna
+        if dna is not None:
+            self.dna = dna
         else:
-            self.dna = DNA(dna, n_chromosomes, n_genes).dna
+            self.dna = self._random_dna(n_chromosomes, n_genes)
 
         World.cell_dict[self.number] = self
 
+    def _random_dna(self, n_chromosomes=4, n_genes=2):
+        """
+        Generates a random DNA for Cell.
+        :param n_chromosomes: Number of chromosomes.
+        :param n_genes: Number of genes inside 1 Chromosome.
+        :return: random DNA; example: [[0.1,0.3],[0.3,0.7],[0.9,0.1],[0.2,0.6]]
+        """
+        dna = [[] for _ in range(n_chromosomes)]
+        for _ in range(n_genes):
+            for n in range(len(dna)):
+                dna[n].append(random.random())
+        return dna
+
     def mate(self, partner):
+        """
+        Produces a new Cell individual with partner.
+        :param partner: type Cell, partner with which to produce child.
+        :return: DNA of the produced child. (type list)
+        """
         dna1 = self.dna
         dna2 = partner.dna
 
@@ -61,17 +52,16 @@ class Cell:
                 child_dna.append(dna1[n])
             elif parent_chromosome == 1:
                 child_dna.append(dna2[n])
-        child_dna = DNA(dna=child_dna)
 
         # --- Mutation
         if random.random() < self.mutation_chance:
             mutation_idx1 = []
             mutation_idx2 = []
             for _ in range(self.n_mutations):
-                mutation_idx1.append(random.randint(0,child_dna.n_chromosomes-1))
-                mutation_idx2.append(random.randint(0,child_dna.n_genes-1))
+                mutation_idx1.append(random.randint(0,len(child_dna)-1))
+                mutation_idx2.append(random.randint(0,len(child_dna[0])-1))
             mutated_dna = []
-            for y, chrom in enumerate(child_dna.dna):
+            for y, chrom in enumerate(child_dna):
                 mutated_dna.append([])
                 for x, gene in enumerate(chrom):
                     for id, idx in enumerate(mutation_idx1):
@@ -87,6 +77,11 @@ class Cell:
         return child_cell
 
     def get_similarity(self, other_cell):
+        """
+        Function to calculate similarity of DNAs.
+        :param other_cell: type Cell, to compare DNAs with.
+        :return: Similarity of the two cells in percent.
+        """
         dna1 = self.dna
         dna2 = other_cell.dna
         max_similarity = len([j for sub in dna1 for j in sub])
