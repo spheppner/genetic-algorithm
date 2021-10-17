@@ -1,6 +1,6 @@
 import random
 import matplotlib.pyplot as plt
-plt.style.use('fivethirtyeight')
+#plt.style.use('fivethirtyeight')
 
 class World:
     cell_dict = {}
@@ -153,6 +153,9 @@ class Cell:
         return str(self.dna)
 
 class Population:
+    """
+    Main class for controlling the genetic algorithm.
+    """
     def __init__(self, n_population=50, n_generations=100):
         self.n_population = n_population
         self.n_generations = n_generations
@@ -162,6 +165,10 @@ class Population:
         self.distance_plot = []
 
     def selection(self):
+        """
+        Uses a selection process to select the next n_selected parents for further breeding.
+        :return: The selected Cells. type list.
+        """
         selection = []
 
         fitness_list = [c._get_fitness() for c in self.population]
@@ -175,6 +182,10 @@ class Population:
         return selection
 
     def next_generation(self):
+        """
+        Breeds next generation.
+        :return: This generation's population, The fitness plot up to this point
+        """
         selection = self.selection()
 
         self.population = []
@@ -190,6 +201,9 @@ class Population:
         return self.population, self.fitness_plot, self.distance_plot
 
     def plot_stats(self):
+        """
+        Plots the fitness and distance over all generations using matplotlib.
+        """
         # --- Plotting the distance ---
         plt.plot(self.distance_plot)
         plt.title('Average Distance')
@@ -207,6 +221,10 @@ class Population:
         plt.show()
 
     def run(self):
+        """
+        Automatically runs the algorithm.
+        :return: New population, Fitness data
+        """
         for _ in range(self.n_generations):
             self.next_generation()
         return self.population, self.fitness_plot, self.distance_plot
