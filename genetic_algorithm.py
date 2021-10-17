@@ -49,11 +49,7 @@ class Cell:
         # --- Crossover
         child_dna = []
         for n in range(len(dna1)):
-            parent_chromosome = random.randint(0, 1)
-            if parent_chromosome == 0:
-                child_dna.append(dna1[n])
-            elif parent_chromosome == 1:
-                child_dna.append(dna2[n])
+            child_dna.append(random.choice([dna1[n],dna2[n]]))
 
         # --- Mutation
         if random.random() < self.mutation_chance:
@@ -190,7 +186,7 @@ if __name__ == "__main__":
     adam = Cell(n_chromosomes=5, n_genes=2)
     eve = Cell(n_chromosomes=5, n_genes=2)
 
-    pop = Population(n_population=50, n_generations=150)
+    pop = Population(n_population=50, n_generations=250)
     pop.population.append(adam)
     pop.population.append(eve)
     pop.run()
