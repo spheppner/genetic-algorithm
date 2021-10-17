@@ -1,4 +1,6 @@
 import random
+import matplotlib.pyplot as plt
+#plt.style.use('fivethirtyeight')
 
 class World:
     cell_dict = {}
@@ -8,12 +10,12 @@ class Cell:
     Organism, that has a DNA.
     """
     number = 0
-    def __init__(self, dna=None, n_chromosomes = 3, n_genes = 3):
+    def __init__(self, dna=None, n_chromosomes = 6, n_genes = 1):
         self.number = Cell.number
         Cell.number += 1
 
-        self.mutation_chance = 0.2
-        self.n_mutations = 1
+        self.mutation_chance = 0.1
+        self.n_mutations = 1 # In this problem, a mutation represents a switch of cities
 
         if dna is not None:
             self.dna = dna
@@ -47,7 +49,7 @@ class Cell:
         # --- Crossover
         child_dna = []
         for n in range(len(dna1)):
-            parent_chromosome = random.randint(0,1)
+            parent_chromosome = random.randint(0, 1)
             if parent_chromosome == 0:
                 child_dna.append(dna1[n])
             elif parent_chromosome == 1:
@@ -58,8 +60,8 @@ class Cell:
             mutation_idx1 = []
             mutation_idx2 = []
             for _ in range(self.n_mutations):
-                mutation_idx1.append(random.randint(0,len(child_dna)-1))
-                mutation_idx2.append(random.randint(0,len(child_dna[0])-1))
+                mutation_idx1.append(random.randint(0, len(child_dna) - 1))
+                mutation_idx2.append(random.randint(0, len(child_dna[0]) - 1))
             mutated_dna = []
             for y, chrom in enumerate(child_dna):
                 mutated_dna.append([])
@@ -93,7 +95,7 @@ class Cell:
         """
         newdata = []
         for d in data:
-            norm = (d-min(data)) / (max(data) - min(data))
+            norm = 1 / (max(data) - min(data)) * (d - max(data)) + 1 #(max'-min') / (max - min) * (value - max) + max'
             newdata.append(norm)
         return newdata
 
@@ -119,11 +121,74 @@ class Cell:
     def __repr__(self):
         return str(self.dna)
 
+class Population:
+    """
+    Main class for controlling the genetic algorithm.
+    """
+    def __init__(self, n_population=50, n_generations=100):
+        self.n_population = n_population
+        self.n_generations = n_generations
+
+        self.population = []
+        self.fitness_plot = []
+
+    def selection(self, n_selected):
+        """
+        Uses a selection process to select the next n_selected parents for further breeding.
+        :return: The selected Cells. type list.
+        """
+        selection = []
+
+        fitness_list = [c._get_fitness() for c in self.population]
+
+        for _ in range(n_selected):
+            best = self.population[fitness_list.index(max(fitness_list))]
+            selection.append(best)
+            fitness_list.remove(max(fitness_list))
+
+        return selection
+
+    def next_generation(self):
+        """
+        Breeds next generation.
+        :return: This generation's population, The fitness plot up to this point
+        """
+        selection = self.selection(n_selected=2)
+
+        self.population = []
+        for pop_idx in range(self.n_population):
+            self.population.append(selection[0].mate(selection[1]))
+
+        # --- Statistics ---
+        fitness_list = [c._get_fitness() for c in self.population]
+        self.fitness_plot.append(sum(fitness_list) / len(fitness_list))
+
+        return self.population, self.fitness_plot
+
+    def plot_stats(self):
+        """
+        Plots the fitness over all generations using matplotlib.
+        """
+        plt.plot(self.fitness_plot)
+        plt.title('Average Fitness')
+        plt.ylabel('Fitness')
+        plt.xlabel('Generations')
+        plt.legend(['Fitness'], loc='lower right')
+        plt.show()
+
+    def run(self):
+        for _ in range(self.n_generations):
+            self.next_generation()
+        return self.population, self.fitness_plot
 
 if __name__ == "__main__":
     # --- Adam and Eve
-    adam = Cell(n_chromosomes=6, n_genes=3)
-    eve = Cell(n_chromosomes=6, n_genes=3)
+    adam = Cell(n_chromosomes=5, n_genes=2)
+    eve = Cell(n_chromosomes=5, n_genes=2)
 
-    child = adam.mate(eve)
-    print(child)
+    pop = Population(n_population=50, n_generations=200)
+    pop.population.append(adam)
+    pop.population.append(eve)
+    pop.run()
+
+    pop.plot_stats()
