@@ -13,7 +13,7 @@ class Cell:
         Cell.number += 1
 
         self.mutation_chance = 0.2
-        self.n_mutations = 2
+        self.n_mutations = 1
 
         if dna is not None:
             self.dna = dna
@@ -76,6 +76,27 @@ class Cell:
         child_cell = Cell(dna=child_dna)
         return child_cell
 
+    def _get_fitness(self):
+        """
+        Calculates the fitness of this cell.
+        :return: Fitness
+        """
+        single_dim = [j for sub in self.dna for j in sub]
+        normalized = self._mean_normalize(single_dim)
+        return sum(normalized)
+
+    def _mean_normalize(self, data):
+        """
+        Applies mean normalization to a single dimension list of values.
+        :param data: type list, filled with values
+        :return: returns list with all values normalized (0-1)
+        """
+        newdata = []
+        for d in data:
+            norm = (d-min(data)) / (max(data) - min(data))
+            newdata.append(norm)
+        return newdata
+
     def get_similarity(self, other_cell):
         """
         Function to calculate similarity of DNAs.
@@ -101,8 +122,8 @@ class Cell:
 
 if __name__ == "__main__":
     # --- Adam and Eve
-    adam = Cell(n_chromosomes=5, n_genes=2)
-    eve = Cell(n_chromosomes=5, n_genes=2)
+    adam = Cell(n_chromosomes=6, n_genes=3)
+    eve = Cell(n_chromosomes=6, n_genes=3)
 
     child = adam.mate(eve)
     print(child)
