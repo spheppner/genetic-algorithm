@@ -177,6 +177,10 @@ class Population:
         plt.show()
 
     def run(self):
+        """
+        Automatically runs the algorithm.
+        :return: New population, Fitness data
+        """
         for _ in range(self.n_generations):
             self.next_generation()
         return self.population, self.fitness_plot
@@ -186,7 +190,7 @@ if __name__ == "__main__":
     adam = Cell(n_chromosomes=5, n_genes=2)
     eve = Cell(n_chromosomes=5, n_genes=2)
 
-    pop = Population(n_population=50, n_generations=200)
+    pop = Population(n_population=50, n_generations=150)
     pop.population.append(adam)
     pop.population.append(eve)
     pop.run()
