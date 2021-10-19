@@ -10,19 +10,21 @@ class Cell:
     Organism, that has a DNA.
     """
     number = 0
-    def __init__(self, dna=None, n_chromosomes = 6, n_genes = 1):
-        self.number = Cell.number
-        Cell.number += 1
+    def __init__(self, dna=None, n_chromosomes = 6, n_genes = 1, dict_entry=True):
+        if dict_entry:
+            self.number = Cell.number
+            Cell.number += 1
 
         self.mutation_chance = 0.1
-        self.n_mutations = 1
+        self.n_mutations = 1 # In this problem, a mutation represents a switch of cities
 
         if dna is not None:
             self.dna = dna
         else:
             self.dna = self._random_dna(n_chromosomes, n_genes)
 
-        World.cell_dict[self.number] = self
+        if dict_entry:
+            World.cell_dict[self.number] = self
 
     def _random_dna(self, n_chromosomes=4, n_genes=2):
         """
@@ -37,7 +39,7 @@ class Cell:
                 dna[n].append(random.random())
         return dna
 
-    def mate(self, partner):
+    def mate(self, partner, dict_entry=True):
         """
         Produces a new Cell individual with partner.
         :param partner: type Cell, partner with which to produce child.
@@ -49,7 +51,11 @@ class Cell:
         # --- Crossover
         child_dna = []
         for n in range(len(dna1)):
-            child_dna.append(random.choice([dna1[n],dna2[n]]))
+            parent_chromosome = random.randint(0, 1)
+            if parent_chromosome == 0:
+                child_dna.append(dna1[n])
+            elif parent_chromosome == 1:
+                child_dna.append(dna2[n])
 
         # --- Mutation
         if random.random() < self.mutation_chance:
@@ -71,7 +77,7 @@ class Cell:
                     if ok:
                         mutated_dna[y].append(gene)
             child_dna = mutated_dna
-        child_cell = Cell(dna=child_dna)
+        child_cell = Cell(dna=child_dna, dict_entry=dict_entry)
         return child_cell
 
     def _get_fitness(self):
@@ -131,25 +137,48 @@ class Population:
     def selection(self, n_selected):
         """
         Uses a selection process to select the next n_selected parents for further breeding.
-        :return: The selected Cells. type list.
+        :return: The selected Cells. type list. selection(2) returns [Cell, Cell]
         """
         selection = []
 
-        fitness_list = [c._get_fitness() for c in self.population]
-
-        for _ in range(n_selected):
-            best = self.population[fitness_list.index(max(fitness_list))]
-            selection.append(best)
-            fitness_list.remove(max(fitness_list))
+        fitness_list = [(c.number, c._get_fitness()) for c in self.population]
+        sorted_values = sorted(fitness_list, key=lambda x: x[1], reverse=True)
+        for n in range(n_selected):
+            selection.append(World.cell_dict[sorted_values[n][0]])
 
         return selection
+
+    def advanced_selection(self, n_selected):
+        """
+        Uses a advanced selection process to select the parents with the best outcome for the next generation.
+        :param n_selected: Placeholder if someone used old function with same parameters.
+        :return: The selected Cells. type list.
+        """
+        selection = []
+        n_preselected = random.randint(2,10)
+        fitness_list = [(c.number, c._get_fitness()) for c in self.population]
+        sorted_values = sorted(fitness_list, key=lambda x: x[1], reverse=True)
+        preselected = [y[0] for y in sorted_values[:n_preselected]]
+        combinations = {}
+        for p1 in preselected:
+            p1_cell = World.cell_dict[p1]
+            for p2 in preselected:
+                p2_cell = World.cell_dict[p2]
+                child = p1_cell.mate(p2_cell, dict_entry=False)
+                combinations[f"{p1}-{p2}"] = child._get_fitness()
+        sorted_values = sorted(combinations.items(), key=lambda x: x[1], reverse=True)
+        best = sorted_values[0][0].split("-")
+        selection.append(World.cell_dict[int(best[0])])
+        selection.append(World.cell_dict[int(best[1])])
+        return selection
+
 
     def next_generation(self):
         """
         Breeds next generation.
         :return: This generation's population, The fitness plot up to this point
         """
-        selection = self.selection(n_selected=2)
+        selection = self.advanced_selection(n_selected=2)
 
         self.population = []
         for pop_idx in range(self.n_population):
@@ -173,18 +202,14 @@ class Population:
         plt.show()
 
     def run(self):
-        """
-        Automatically runs the algorithm.
-        :return: New population, Fitness data
-        """
         for _ in range(self.n_generations):
             self.next_generation()
         return self.population, self.fitness_plot
 
 if __name__ == "__main__":
     # --- Adam and Eve
-    adam = Cell(n_chromosomes=5, n_genes=2)
-    eve = Cell(n_chromosomes=5, n_genes=2)
+    adam = Cell(n_chromosomes=5, n_genes=5)
+    eve = Cell(n_chromosomes=5, n_genes=5)
 
     pop = Population(n_population=50, n_generations=250)
     pop.population.append(adam)
