@@ -16,7 +16,7 @@ class Cell:
             Cell.number += 1
 
         self.mutation_chance = 0.1
-        self.n_mutations = 1 # In this problem, a mutation represents a switch of cities
+        self.n_mutations = 1
 
         if dna is not None:
             self.dna = dna
