@@ -50,30 +50,22 @@ class Cell:
         :param partner: type Cell, partner with which to produce child.
         :return: DNA of the produced child. (type list)
         """
-        a = self.dna
-        b = partner.dna
+        parent1 = self.dna
+        parent2 = partner.dna
 
         # --- Crossover
-        child=[]
-        childA=[]
-        childB=[]
-    
-    
-        geneA=int(random.random()* len(a))
-        geneB=int(random.random()* len(a))
-    
-        start_gene=min(geneA,geneB)
-        end_gene=max(geneA,geneB)
-    
-        for i in range(start_gene,end_gene):
-            childA.append(a[i])
-        
-        childB=[item for item in a if item not in childA]
-        child=childA+childB
-        child_dna = child
-        #print(dna1)
-        #print(dna2)
-        #print(child_dna)
+        geneA = int(random.random() * len(parent1))
+        geneB = int(random.random() * len(parent1))
+
+        startGene = min(geneA, geneB)
+        endGene = max(geneA, geneB)
+
+        childP1 = []
+        for i in range(startGene, endGene):
+            childP1.append(parent1[i])
+
+        childP2 = [item for item in parent2 if item not in childP1]
+        child_dna = childP2[:startGene] + childP1 + childP2[startGene:]
 
         # --- Mutation
         if random.random() < self.mutation_chance:
@@ -239,7 +231,7 @@ if __name__ == "__main__":
     adam = Cell(n_chromosomes=len(World.cities), n_genes=1)
     eve = Cell(n_chromosomes=len(World.cities), n_genes=1)
 
-    pop = Population(n_population=50, n_generations=12000)
+    pop = Population(n_population=100, n_generations=10000)
     pop.population.append(adam)
     pop.population.append(eve)
     pop.run()
