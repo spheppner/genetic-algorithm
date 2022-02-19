@@ -187,7 +187,7 @@ if __name__ == "__main__":
     n_pops = 8
     n_genes = 5
     n_chroms = 5
-    n_epochs = 1000
+    n_epochs = 200
     verbose = True
     n_mutations = 1
     n_mutation_chance = 0.2
