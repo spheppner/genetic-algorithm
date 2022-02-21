@@ -3,8 +3,18 @@ import random
 
 class World:
     cells = {}
-    n_cities = 20
-    cities = [(random.randint(1,50),random.randint(1,50)) for _ in range(n_cities)]
+    n_cities = 16
+    city_matrix = (4,4)
+    cities = []
+    for n in range(n_cities):
+        while True:
+            new_city = (random.randint(1, city_matrix[0]), random.randint(1, city_matrix[1]))
+            if new_city in cities:
+                continue
+            else:
+                break
+        cities.append(new_city)
+    #cities = [(13, 17), (9, 2), (40, 26), (43, 29), (24, 1), (37, 32), (34, 32), (9, 19), (24, 26), (3, 40), (40, 42), (27, 27), (35, 38), (7, 11), (17, 16), (35, 39), (37, 24), (43, 3), (20, 6), (49, 27)]
 
 class TravellingSalesman(EvolutionaryAlgorithm):
 
@@ -72,17 +82,18 @@ class TravellingSalesman(EvolutionaryAlgorithm):
         return child_cell
 
 if __name__ == "__main__":
-    n_cells_per_pop = 50
-    n_pops = 4
+    n_cells_per_pop = 100
+    n_pops = 64
     n_genes = 1
     n_chroms = len(World.cities)
-    n_epochs = 200
+    n_epochs = 1000
     verbose = True
     n_mutations = 1
-    n_mutation_chance = 0.1
+    mutation_chance = 0.1
 
-    evolutionary_algorithm = TravellingSalesman(n_cells_per_pop, n_pops, n_genes, n_chroms, n_epochs, verbose, n_mutations, n_mutation_chance)
+    evolutionary_algorithm = TravellingSalesman(n_cells_per_pop, n_pops, n_genes, n_chroms, n_epochs, verbose, n_mutations, mutation_chance)
     evolutionary_algorithm.run()
     evolutionary_algorithm.plot_stats()
 
     print(evolutionary_algorithm.get_distance(evolutionary_algorithm.selection(n_selected=1)[0].dna))
+    print(World.cities)

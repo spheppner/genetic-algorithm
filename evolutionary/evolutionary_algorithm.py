@@ -184,12 +184,12 @@ class EvolutionaryAlgorithm:
 
 if __name__ == "__main__":
     n_cells_per_pop = 50
-    n_pops = 8
+    n_pops = 64
     n_genes = 5
     n_chroms = 5
     n_epochs = 200
     verbose = True
-    n_mutations = 1
+    n_mutations = 2
     n_mutation_chance = 0.2
 
     evolutionary_algorithm = EvolutionaryAlgorithm(n_cells_per_pop, n_pops, n_genes, n_chroms, n_epochs, verbose, n_mutations, n_mutation_chance)
