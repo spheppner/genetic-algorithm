@@ -41,7 +41,7 @@ class EvolutionaryAlgorithm:
         self.n_mutations = n_mutations
         self.mutation_chance = mutation_chance
 
-        n_crossovers = int(n_pops**0.5)
+        n_crossovers = n_pops-1
         self.crossover_points = [n_epochs//(n_crossovers+1)*(n+1) for n in range(n_crossovers)]
 
     def gene_func(self, n_genes, n_chroms):
@@ -176,12 +176,18 @@ class EvolutionaryAlgorithm:
 
             if epoch in self.crossover_points:
                 self.log("Crossing Populations")
-                modulo_cross = int(len(self.populations) ** 0.5)
+                n_crosses = 2
                 to_delete = []
-                for i in range(modulo_cross):
-                    to_delete.append(self.populations[i])
-                    to_delete.append(self.populations[i+modulo_cross])
-                    self.cross_pops_func(self.populations[i],self.populations[i+modulo_cross])
+                pop_crosses = random.sample(self.populations, n_crosses)
+                while True:
+                    if len(pop_crosses) > 1:
+                        to_delete.append(self.populations[self.populations.index(pop_crosses[0])])
+                        to_delete.append(self.populations[self.populations.index(pop_crosses[-1])])
+                        self.cross_pops_func(self.populations[self.populations.index(pop_crosses[0])], self.populations[self.populations.index(pop_crosses[-1])])
+                        del pop_crosses[0]
+                        del pop_crosses[-1]
+                    else:
+                        break
                 for d in to_delete:
                     del self.populations[self.populations.index(d)]
 
