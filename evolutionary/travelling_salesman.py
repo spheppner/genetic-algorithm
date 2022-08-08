@@ -4,7 +4,7 @@ import random
 class World:
     cells = {}
     n_cities = 16
-    city_matrix = (4,4)
+    city_matrix = (10,10)
     cities = []
     for n in range(n_cities):
         while True:
@@ -34,11 +34,11 @@ class TravellingSalesman(EvolutionaryAlgorithm):
             total_distance += distance
         return total_distance
 
-    def fitness_func(self, dna):
-        total_distance = self.get_distance(dna)
-        return 1 / total_distance
+    def fitness(self, cell):
+        total_distance = self.get_distance(cell.dna)
+        return len(World.cities) / total_distance
 
-    def gene_func(self, n_genes, n_chroms):
+    def gene_generator(self, n_genes, n_chroms):
         dna = [[] for _ in range(n_chroms)]
         cities = list(range(n_chroms))
         random.shuffle(cities)
@@ -47,7 +47,7 @@ class TravellingSalesman(EvolutionaryAlgorithm):
                 dna[n].append(cities[n])
         return dna
 
-    def mate_func(self, cell1, cell2):
+    def mate(self, cell1, cell2):
         parent1 = cell1.dna
         parent2 = cell2.dna
 
@@ -78,7 +78,7 @@ class TravellingSalesman(EvolutionaryAlgorithm):
             for midx1 in mutation_idx:
                 mutated_dna[midx1[0]], mutated_dna[midx1[1]] = mutated_dna[midx1[1]], mutated_dna[midx1[0]]
             child_dna = mutated_dna
-        child_cell = Cell(dna=child_dna, gene_func=self.gene_func)
+        child_cell = Cell(dna=child_dna, gene_func=self.gene_generator)
         return child_cell
 
 if __name__ == "__main__":
@@ -94,6 +94,7 @@ if __name__ == "__main__":
     evolutionary_algorithm = TravellingSalesman(n_cells_per_pop, n_pops, n_genes, n_chroms, n_epochs, verbose, n_mutations, mutation_chance)
     evolutionary_algorithm.run()
     evolutionary_algorithm.plot_stats()
-
+    
+    print(evolutionary_algorithm.selection(n_selected=1)[0].dna)
     print(evolutionary_algorithm.get_distance(evolutionary_algorithm.selection(n_selected=1)[0].dna))
     print(World.cities)
