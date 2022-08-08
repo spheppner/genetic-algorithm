@@ -1,4 +1,4 @@
-from evolutionary_algorithm_v2 import EvolutionaryAlgorithm, Cell
+from evolutionary_algorithm_v3 import EvolutionaryAlgorithm, Cell
 import random
 from pickle import dump
 from PIL import Image, ImageDraw, ImageChops
