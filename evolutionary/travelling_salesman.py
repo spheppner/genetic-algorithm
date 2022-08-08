@@ -1,4 +1,4 @@
-from evolutionary_algorithm import EvolutionaryAlgorithm, Cell
+from evolutionary_algorithm_v3 import EvolutionaryAlgorithm, Cell
 import random
 
 class World:
